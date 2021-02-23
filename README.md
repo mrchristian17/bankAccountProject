@@ -1,6 +1,6 @@
 # bankAccountProject
 /**
-02:    This program tests the BankAccount class and
+02:    This program tests the RunBank class and
 03:    its subclasses. 
 04: */
 05: public class AccountTester

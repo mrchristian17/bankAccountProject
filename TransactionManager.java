@@ -1,31 +1,66 @@
-import java.util.List;
 import java.text.DecimalFormat;
 
 public class TransactionManager {
 
-    private AccountOwner currUser;
-    private AccountOwner userForTransaction;
+    private Customer currUser;
+    private Customer userForTransaction;
     private String transactionType;
+    private String accountType;
+    private String userToPayAccountType;
     private double amount;
 
-    public TransactionManager(AccountOwner currUser, String transactionType, double amount) {
+    //Constructor for balance
+    public TransactionManager(Customer currUser, String transactionType, String accountType) {
         this.currUser = currUser;
         this.transactionType = transactionType;
+        this.accountType = accountType;
+    }
+    //Constructor for individual transactions
+    public TransactionManager(Customer currUser, String transactionType, String accountType, double amount) {
+        this.currUser = currUser;
+        this.transactionType = transactionType;
+        this.accountType = accountType;
         this.amount = amount;
     }
-    public TransactionManager(AccountOwner currUser, AccountOwner userForTransaction, String transactionType, double amount) {
+    //Constructor for payment transactions
+    public TransactionManager(Customer currUser, Customer userForTransaction,
+                              String transactionType, String accountType,  String userToPayAccountType ,double amount) {
         this.currUser = currUser;
         this.userForTransaction = userForTransaction;
         this.transactionType = transactionType;
+        this.accountType = accountType;
+        this.userToPayAccountType = accountType;
         this.amount = amount;
     }
 
     //Checks user input and calls executes corresponding transaction method
     //returns String to be inputted into the transactionReport.txt
-    public boolean executeTransaction() {
+    public String executeAndLogTransaction() {
         boolean transSuccessful = true;
+
+
+//        switch(this.transactionType)
+//        {
+//            case "BALANCE":
+//                transSuccessful = currUser.getChecking().balance();
+//                break;
+//            case "WITHDRAW":
+//                transSuccessful = currUser.getChecking().withdraw(amount);
+//                break;
+//            case "DEPOSIT":
+//                break;
+//            case "PAY":
+//                break;
+//            default:
+//                transSuccessful = false;
+//                break;
+//        }
+
+
         if(this.transactionType.equals("BALANCE")) {
+
             transSuccessful = currUser.getChecking().balance();
+            transSuccessful = true;
         }
         else if(this.transactionType.equals("WITHDRAW")) {
             transSuccessful = currUser.getChecking().withdraw(amount);
@@ -33,10 +68,13 @@ public class TransactionManager {
         else if(this.transactionType.equals("DEPOSIT")) {
             transSuccessful = currUser.getChecking().deposit(amount);
         }
+        else if(this.transactionType.equals("TRANSFER")) {
+//            transSuccessful = currUser.getChecking().transfer(amount);
+        }
         else if(this.transactionType.equals("PAY")) {
             transSuccessful = pay();
         }
-        return transSuccessful;
+        return printTransactionResult(transSuccessful);
     }
 
     public boolean pay() {
@@ -59,6 +97,8 @@ public class TransactionManager {
         }
         return currUser.getFullName() + "'s " + transactionType + " " + transStatus;
     }
+
+
 
     public String toCurrency(double amount) {
         DecimalFormat numberFormat = new DecimalFormat("#.00");

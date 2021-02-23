@@ -1,15 +1,13 @@
 import java.text.DecimalFormat;
 
 public class Checking extends AccountAbstract{
-
-    //default constructor
+    //Default Constructor
     public Checking() {
         super();
     }
-
     //Constructors
-    public Checking(double balance, double interest) {
-       super(balance, interest);
+    public Checking(long accountNum, double balance) {
+       super(accountNum, balance);
     }
 
 }

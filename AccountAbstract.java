@@ -1,16 +1,16 @@
 public abstract class AccountAbstract implements IAccount{
+    private double accountNum;
     private double balance;
-    private double interest;
 
     //default constructor
     public AccountAbstract() {
-        this.balance = 0;
-    }
 
+    }
     //Constructor
-    public AccountAbstract(double balance, double interest) {
+    public AccountAbstract(long accountNum, double balance) {
+
+        this.accountNum = accountNum;
         this.balance = balance;
-        this.interest = interest;
     }
 
     public boolean deposit(double depositAmount) {
@@ -36,8 +36,17 @@ public abstract class AccountAbstract implements IAccount{
         return withdrawSuccessful;
     }
 
+    //Shouldn't be boolean, should always return balance
     public boolean balance() {
         return true;
+    }
+
+    public double getAccountNum() {
+        return accountNum;
+    }
+
+    public void setAccountNum(double accountNum) {
+        this.accountNum = accountNum;
     }
 
     public double getBalance() {
@@ -46,13 +55,5 @@ public abstract class AccountAbstract implements IAccount{
 
     public void setBalance(double balance) {
         this.balance = balance;
-    }
-
-    public double getInterest() {
-        return interest;
-    }
-
-    public void setInterest(double interest) {
-        this.interest = interest;
     }
 }

@@ -17,12 +17,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
-public class BankAccount {
+public class RunBank {
     private static Scanner in = new Scanner(System.in);
 
     //List of transaction types
     enum TransactionType {
-        BALANCE, PAY, DEPOSIT, WITHDRAW,
+        BALANCE, PAY, DEPOSIT, WITHDRAW, TRANSFER
+    }
+
+    enum AccountType {
+        CHECKING, SAVING, CREDIT
     }
 
     //Yes or no types for certain user questions
@@ -32,27 +36,45 @@ public class BankAccount {
 
     //Reads file and creates Checking object
     //Currently allocates: firstName, lastName, accountNumber, startingBalance
-    public static List<AccountOwner> fileReader() {
-        List<AccountOwner> accounts = new ArrayList<AccountOwner>();
+    public static List<Customer> fileReader() {
+        List<Customer> accounts = new ArrayList<Customer>();
         try {
-            File bankAccountsFile = new File("src/CS 3331 - Bank Users.csv");
+            File bankAccountsFile = new File("src/CS 3331 - Bank Users 2.csv");
             Scanner file_reader= new Scanner(bankAccountsFile);
             int count = 0;
             while (file_reader.hasNextLine()) {
                 String current_line = file_reader.nextLine();
-                String[] currentUserData = current_line.trim().split("\\s*,\\s*");
+
+                //I Don't understand this code so I need to either be able to explain it or
+                //find a simple solution
+                String[] currentUserData = current_line.trim().split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+//                String[] currentUserData = current_line.trim().split("\\s*,\\s*");
                 if(count == 0) {
                     count++;
                     continue;
                 }
-                accounts.add(new AccountOwner(
+//                String firstName, String lastName, String dateOfBirth, String identificationNumber,
+//                String address, String phoneNumber, long checkingAccountNum, long savingAccountNum,
+//                long creditAccountNum,double checkingBalance, double savingBalance, double creditBalance
+                accounts.add(new Customer(
                         currentUserData[0],
                         currentUserData[1],
-                        Long.parseLong(currentUserData[2]),
-                        Boolean.parseBoolean(currentUserData[3]),
-                        Boolean.parseBoolean(currentUserData[4]),
-                        Double.parseDouble(currentUserData[5]),
-                        Double.parseDouble(currentUserData[6].replaceAll("%",""))));
+                        //DOB
+                        currentUserData[2],
+                        //SSN
+                        currentUserData[3],
+                        //Address
+                        currentUserData[4],
+                        //Phone number
+                        currentUserData[5],
+                        //account Numbers (takes out dashes)
+                        Long.parseLong(currentUserData[6].replaceAll("-","")),
+                        Long.parseLong(currentUserData[7].replaceAll("-","")),
+                        Long.parseLong(currentUserData[8].replaceAll("-","")),
+                        //balances
+                        Double.parseDouble(currentUserData[9]),
+                        Double.parseDouble(currentUserData[10]),
+                        Double.parseDouble(currentUserData[11])));
             }
             file_reader.close();
             System.out.println("User account information has been downloaded.");
@@ -98,8 +120,8 @@ public class BankAccount {
     }
 
     //Gets the first and last name of a user and finds their account if it exists
-    public static AccountOwner findUser(List<AccountOwner> accounts) {
-        AccountOwner currUser = null;
+    public static Customer findUser(List<Customer> accounts) {
+        Customer currUser = null;
         while (currUser == null) {
             //Gets user first and last name
             System.out.println("Please input the following information:");
@@ -117,8 +139,8 @@ public class BankAccount {
         return currUser;
     }
 
-    public static AccountOwner checkUserExists(List<AccountOwner> accounts, String userFirstName, String userLastName) {
-        AccountOwner currAccount = null;
+    public static Customer checkUserExists(List<Customer> accounts, String userFirstName, String userLastName) {
+        Customer currAccount = null;
         for(int i = 0; i < accounts.size(); i++) {
             currAccount = accounts.get(i);
             String currFirstName = currAccount.getFirstName();
@@ -146,37 +168,43 @@ public class BankAccount {
     //until satisfactory input is received (negative numbers not accepted)
 
     public static void main(String[] args) {
-        List<AccountOwner> accounts= fileReader();
-        TransactionManager transactionManager = null;
-        Comparator<AccountOwner> compareByFullName = (AccountOwner a1, AccountOwner a2) -> a1.getFullName().compareTo( a2.getFullName() );
+        List<Customer> accounts= fileReader();
+        Comparator<Customer> compareByFullName = (Customer a1, Customer a2) -> a1.getFullName().compareTo( a2.getFullName() );
         Collections.sort(accounts, compareByFullName);
         createFile();
 
         InputManager inputManger = new InputManager();
+        TransactionManager transactionManager = null;
+
         //Runs loop that allows user to access different bank accounts
         boolean resumeSession = true;
-        while(resumeSession) {
+        while(resumeSession){
             System.out.println("Please identify yourself:");
-            AccountOwner currUser = findUser(accounts);
+            Customer currUser = findUser(accounts);
 
             //Runs loop that allows transactions for a specific user
             boolean resumeUserSession = true;
             while(resumeUserSession) {
                 String currTransaction = inputManger.checkTransactionTypeInput();
-                AccountOwner userToPay = null;
+                String currAccountType = inputManger.checkAccountTypeInput();
                 if(currTransaction.equalsIgnoreCase("PAY")){
                     System.out.println("Who would you like to pay?");
-                    userToPay = findUser(accounts);
+                    Customer userToPay = findUser(accounts);
+                    String userToPayAccountType = inputManger.checkAccountTypeInput();
                     transactionManager = new TransactionManager(
-                            currUser, userToPay, currTransaction, inputManger.checkMoneyInput(currTransaction));
+                            currUser, userToPay, currTransaction, currAccountType,
+                            userToPayAccountType, inputManger.checkMoneyInput(currTransaction));
+                }
+                else if(currTransaction.equalsIgnoreCase("BALANCE")) {
+                    transactionManager = new TransactionManager(currUser, currTransaction, currAccountType);
                 }
                 else {
                     transactionManager = new TransactionManager(
-                            currUser, currTransaction, inputManger.checkMoneyInput(currTransaction));
+                            currUser, currTransaction, currAccountType, inputManger.checkMoneyInput(currTransaction));
                 }
 
-                boolean transactionResult = transactionManager.executeTransaction();
-                fileWriter(transactionManager.printTransactionResult(transactionResult));
+                String transactionResult = transactionManager.executeAndLogTransaction();
+                fileWriter(transactionResult);
                 String resumeUserInput = inputManger.check_yes_no("Would you like to make another transaction?");
 
                 //ends session for current account

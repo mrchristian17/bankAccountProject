@@ -1,9 +1,5 @@
 import java.util.*;
 public class InputManager {
-    //List of transaction types
-    enum TransactionType {
-        BALANCE, PAY, DEPOSIT, WITHDRAW,
-    }
 
     private static Scanner in = new Scanner(System.in);
 
@@ -13,25 +9,24 @@ public class InputManager {
     //Invalid input is handled here and user is prompted to reenter it
     //List of options is printed for user to choose from
     public String checkTransactionTypeInput() {
-        BankAccount.TransactionType transactionTypeEnum = null;
+        RunBank.TransactionType transactionTypeEnum = null;
 
+        String options = "Options: ";
+        options += RunBank.TransactionType.values()[0];
+        boolean isFirst = true;
+        for (RunBank.TransactionType type: RunBank.TransactionType.values()) {
+            if(isFirst) {
+                isFirst = false;
+                continue;
+            }
+            options += ", " + type;
+        }
         while(true) {
             System.out.println("What transaction type would you like to execute?");
-            String options = "Options: ";
-            options += BankAccount.TransactionType.values()[0];
-            boolean isFirst = true;
-            for (BankAccount.TransactionType type: BankAccount.TransactionType.values()) {
-                if(isFirst) {
-                    isFirst = false;
-                    continue;
-                }
-                options += ", " + type;
-            }
-
             System.out.println(options);
             try{
                 String inputTransaction = in.nextLine();
-                transactionTypeEnum = BankAccount.TransactionType.valueOf(inputTransaction.toUpperCase());
+                transactionTypeEnum = RunBank.TransactionType.valueOf(inputTransaction.toUpperCase());
                 break;
             }
             catch(IllegalArgumentException e) {
@@ -43,16 +38,43 @@ public class InputManager {
         return transactionTypeEnum.name();
     }
 
+    public String checkAccountTypeInput() {
+        String options = "Options: ";
+        int endIndexAccountTypeList = RunBank.AccountType.values().length-1;
+        for (RunBank.AccountType type: RunBank.AccountType.values()) {
+            options += type;
+            if(type.ordinal() != endIndexAccountTypeList) {
+                options += ", ";
+            }
+        }
+
+        RunBank.AccountType accountType = null;
+        while(true) {
+            System.out.println("Which account would you like to use?");
+            System.out.println(options);
+            try{
+                String input = in.nextLine();
+                accountType = RunBank.AccountType.valueOf(input.toUpperCase());
+                break;
+            }
+            catch(IllegalArgumentException e) {
+                System.out.println("This is NOT a valid response.");
+                continue;
+            }
+        }
+        return accountType.name();
+    }
+
     //Checks user input until user selects yes or no
     public String check_yes_no(String text_input) {
-        BankAccount.YesNo yesNo = null;
+        RunBank.YesNo yesNo = null;
 
         while(true) {
             System.out.println(text_input);
             System.out.println("Yes or No?");
             try{
                 String input = in.nextLine();
-                yesNo = BankAccount.YesNo.valueOf(input.toUpperCase());
+                yesNo = RunBank.YesNo.valueOf(input.toUpperCase());
                 break;
             }
             catch(IllegalArgumentException e) {

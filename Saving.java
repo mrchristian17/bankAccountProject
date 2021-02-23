@@ -5,7 +5,7 @@ public class Saving extends AccountAbstract{
     }
 
     //Constructors
-    public Saving(double balance, double interest) {
-        super(balance, interest);
+    public Saving(long accountNum, double balance) {
+        super(accountNum, balance);
     }
 }
