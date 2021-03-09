@@ -5,9 +5,46 @@ public class InputManager {
 
     public InputManager () { }
 
-    //Compares input to enumerated type TransactionType
-    //Invalid input is handled here and user is prompted to reenter it
-    //List of options is printed for user to choose from
+    /**
+     *
+     * @return user type input
+     *
+     * Checks to make sure user input matches the user type options
+     * Will continue to prompt user to reenter input until it's accepted
+     */
+    public String checkUserTypeInput() {
+        String options = "Options: ";
+        int endIndexUserTypeList = RunBank.UserType.values().length-1;
+        for (RunBank.UserType type: RunBank.UserType.values()) {
+            options += type;
+            if(type.ordinal() != endIndexUserTypeList) {
+                options += ", ";
+            }
+        }
+        RunBank.UserType userType = null;
+        while(true) {
+            System.out.println("Which account would you like to use?");
+            System.out.println(options);
+            try{
+                String input = in.nextLine();
+                userType = RunBank.UserType.valueOf(input.toUpperCase());
+                break;
+            }
+            catch(IllegalArgumentException e) {
+                System.out.println("This is NOT a valid response.");
+                continue;
+            }
+        }
+        return userType.name();
+    }
+
+    /**
+     *
+     * @return transaction type input
+     *
+     * Checks to make sure user input matches the transaction type options
+     * Will continue to prompt user to reenter input until it's accepted
+     */
     public String checkTransactionTypeInput() {
         RunBank.TransactionType transactionTypeEnum = null;
 
@@ -38,6 +75,13 @@ public class InputManager {
         return transactionTypeEnum.name();
     }
 
+    /**
+     *
+     * @return account type input
+     *
+     * Checks to make sure user input matches the account type options
+     * Will continue to prompt user to reenter input until it's accepted
+     */
     public String checkAccountTypeInput() {
         String options = "Options: ";
         int endIndexAccountTypeList = RunBank.AccountType.values().length-1;
@@ -50,7 +94,6 @@ public class InputManager {
 
         RunBank.AccountType accountType = null;
         while(true) {
-            System.out.println("Which account would you like to use?");
             System.out.println(options);
             try{
                 String input = in.nextLine();
@@ -65,6 +108,13 @@ public class InputManager {
         return accountType.name();
     }
 
+    /**
+     *
+     * @return user Yes or No input
+     *
+     * Checks to make sure user input matches the yes or no type options
+     * Will continue to prompt user to reenter input until it's accepted
+     */
     //Checks user input until user selects yes or no
     public String check_yes_no(String text_input) {
         RunBank.YesNo yesNo = null;
@@ -85,8 +135,39 @@ public class InputManager {
         return yesNo.name();
     }
 
-    //checks user input for money and prints out continuously prompts user to reenter
-    //until satisfactory input is received (negative numbers not accepted)
+    /**
+     *
+     * @return user a or b option
+     * Checks to make sure user input matches the A or B type options
+     * Will continue to prompt user to reenter input until it's accepted
+     */
+    //compares enum AB to user input
+    public String checkABInput() {
+        RunBank.AB option = null;
+        while(true) {
+            System.out.println("A or B?");
+            try{
+                String input = in.nextLine();
+                option = RunBank.AB.valueOf(input.toUpperCase());
+                break;
+            }
+            catch(IllegalArgumentException e) {
+                System.out.println("This is NOT a valid response.");
+                continue;
+            }
+        }
+        return option.name();
+    }
+
+
+    /**
+     *
+     * @return user money input
+     *
+     * Checks to make sure user input is an acceptable numerical value
+     * Will continue to prompt user to reenter input until it's accepted
+     * Does not accept negative values
+     */
     public double checkMoneyInput(String transType) {
         String message = "How much money would you like to " + transType + "?";
         double inputAmount = 0;

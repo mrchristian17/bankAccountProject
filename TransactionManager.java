@@ -5,106 +5,211 @@ public class TransactionManager {
     private Customer currUser;
     private Customer userForTransaction;
     private String transactionType;
-    private String accountType;
-    private String userToPayAccountType;
+    private Account currUserAccountType;
+    private Account userToPayAccountType;
     private double amount;
 
-    //Constructor for balance
-    public TransactionManager(Customer currUser, String transactionType, String accountType) {
+    /**
+     *
+     * @param currUser
+     * @param transactionType
+     * @param accountType
+     *
+     * Constructor for balance
+     */
+    public TransactionManager(Customer currUser, String transactionType, Account accountType) {
         this.currUser = currUser;
         this.transactionType = transactionType;
-        this.accountType = accountType;
+        this.currUserAccountType = accountType;
     }
-    //Constructor for individual transactions
-    public TransactionManager(Customer currUser, String transactionType, String accountType, double amount) {
+
+    /**
+     *
+     * @param currUser
+     * @param transactionType
+     * @param accountType
+     * @param amount
+     *
+     * Constructor for individual (withdraw/deposit) transactions
+     */
+    public TransactionManager(Customer currUser, String transactionType, Account accountType, double amount) {
         this.currUser = currUser;
         this.transactionType = transactionType;
-        this.accountType = accountType;
+        this.currUserAccountType = accountType;
         this.amount = amount;
     }
-    //Constructor for payment transactions
-    public TransactionManager(Customer currUser, Customer userForTransaction,
-                              String transactionType, String accountType,  String userToPayAccountType ,double amount) {
+
+    /**
+     *
+     * @param currUser
+     * @param userForTransaction
+     * @param transactionType
+     * @param accountType
+     * @param userToPayAccountType
+     * @param amount
+     *
+     * Constructor for payment/transfer transactions
+     */
+
+    public TransactionManager(Customer currUser, Customer userForTransaction, String transactionType,
+                              Account accountType, Account userToPayAccountType , double amount) {
         this.currUser = currUser;
         this.userForTransaction = userForTransaction;
         this.transactionType = transactionType;
-        this.accountType = accountType;
-        this.userToPayAccountType = accountType;
+        this.currUserAccountType = accountType;
+        this.userToPayAccountType = userToPayAccountType;
         this.amount = amount;
     }
 
-    //Checks user input and calls executes corresponding transaction method
-    //returns String to be inputted into the transactionReport.txt
+    /**
+     *
+     * @return an explanation of the transaction that was executed
+     */
     public String executeAndLogTransaction() {
         boolean transSuccessful = true;
-
-
-//        switch(this.transactionType)
-//        {
-//            case "BALANCE":
-//                transSuccessful = currUser.getChecking().balance();
-//                break;
-//            case "WITHDRAW":
-//                transSuccessful = currUser.getChecking().withdraw(amount);
-//                break;
-//            case "DEPOSIT":
-//                break;
-//            case "PAY":
-//                break;
-//            default:
-//                transSuccessful = false;
-//                break;
-//        }
-
+        String logMessage = "";
 
         if(this.transactionType.equals("BALANCE")) {
-
-            transSuccessful = currUser.getChecking().balance();
-            transSuccessful = true;
+            logMessage += printTransactionResultBalance();
         }
         else if(this.transactionType.equals("WITHDRAW")) {
-            transSuccessful = currUser.getChecking().withdraw(amount);
+            transSuccessful = currUserAccountType.withdraw(amount);
+            logMessage += printTransactionResultWithdrawDeposit(transSuccessful);
         }
         else if(this.transactionType.equals("DEPOSIT")) {
-            transSuccessful = currUser.getChecking().deposit(amount);
+            transSuccessful = currUserAccountType.deposit(amount);
+            logMessage += printTransactionResultWithdrawDeposit(transSuccessful);
         }
         else if(this.transactionType.equals("TRANSFER")) {
-//            transSuccessful = currUser.getChecking().transfer(amount);
+            if(currUserAccountType == userToPayAccountType)
+                transSuccessful = false;
+            else
+                transSuccessful = pay();
+            logMessage += printTransactionResultTransfer(transSuccessful);
         }
         else if(this.transactionType.equals("PAY")) {
             transSuccessful = pay();
+            logMessage += printTransactionResultPAY(transSuccessful);
         }
-        return printTransactionResult(transSuccessful);
+        currUser.printAllInfo();
+        if(userForTransaction != null)
+            userForTransaction.printAllInfo();
+        return logMessage;
     }
 
+    /**
+     *
+     * @return whether or not the pay transaction was successful
+     *
+     * Withdraws from one account, deposits into second account
+     * Pay method handled here since, two different users are needed to complete the transaction
+     * Also used as transfer method
+     */
     public boolean pay() {
         boolean transSuccessful = true;
-        boolean currUserWithdraw = currUser.getChecking().withdraw(this.amount);
-        boolean userForTransactionDeposit = userForTransaction.getChecking().deposit(this.amount);
-        if(currUserWithdraw && userForTransactionDeposit) {
-            return transSuccessful;
+        //If account the paying account is credit, then the balance isn't relevant
+        //If account isn't credit, then the amount being paid cannot exceed the current balance
+        if(!currUserAccountType.getClass().getName().equals("Credit") && currUserAccountType.getBalance() < this.amount) {
+            return false;
         }
-        return false;
+        //Cannot pay more than the current balance to a credit account
+        if(userToPayAccountType.getClass().getName().equals("Credit") && userToPayAccountType.getBalance()+this.amount > 0) {
+            return false;
+        }
+        //Payment is technically a withdraw from one user account
+        //and a deposit into the second user account
+        boolean currUserWithdraw = currUserAccountType.withdraw(this.amount);
+        boolean userForTransactionDeposit = userToPayAccountType.deposit(this.amount);
+        return transSuccessful;
     }
 
-    public String printTransactionResult(boolean transactionSuccess) {
-        String transStatus = "";
+    /**
+     *
+     * @param transactionSuccess
+     * @return log for the results from a pay transaction
+     */
+    public String printTransactionResultPAY(boolean transactionSuccess) {
+        String currUserTransStatus = currUser.getFullName();
+        String userToPayTransStatus = "\n" + userForTransaction.getFullName();
+
         if(transactionSuccess) {
-            transStatus = "successful";
+            currUserTransStatus += " paid ";
+            userToPayTransStatus += " received ";
         }
         else {
-            transStatus = "failed";
+            currUserTransStatus += " failed to pay ";
+            userToPayTransStatus += " failed to receive ";
         }
-        return currUser.getFullName() + "'s " + transactionType + " " + transStatus;
+        currUserTransStatus += userForTransaction.getFullName() +" " +toCurrency(amount) + " from " +
+                currUserAccountType.getAccountName() + ".  " + currUser.getFullName() + "'s New Balance for " +
+                currUserAccountType.getAccountName() + ": " + toCurrency(currUserAccountType.getBalance());;
+        userToPayTransStatus += toCurrency(amount) + " from " + currUser.getFullName() + ".  " +
+                userForTransaction.getFullName() + "'s " + "New Balance for " +
+                userToPayAccountType.getAccountName() + ": " + toCurrency(userToPayAccountType.getBalance());;
+
+
+        return currUserTransStatus + userToPayTransStatus;
+    }
+    /**
+     *
+     * @param transactionSuccess
+     * @return log for the results from a withdraw/deposit transaction
+     */
+    public String printTransactionResultWithdrawDeposit(boolean transactionSuccess) {
+        String currUserTransStatus = currUser.getFullName();
+        if(transactionSuccess) {
+            currUserTransStatus += " executed a " ;
+        }
+        else {
+            currUserTransStatus += " failed to execute a ";
+        }
+        currUserTransStatus += transactionType+ " from " + currUserAccountType.getAccountName() +".  " +
+                currUser.getFullName() + "'s Balance for " + currUserAccountType.getAccountName()+": " +
+                toCurrency(currUserAccountType.getBalance());
+        return currUserTransStatus;
     }
 
+    /**
+     *
+     * @return log for the results from a balance inquiry transaction
+     */
+    public String printTransactionResultBalance() {
+        String currUserTransStatus = currUser.getFullName() + " made a balance inquiry on " +
+                currUserAccountType.getAccountName() + ".  "  + currUser.getFullName() + "'s Balance for " +
+                currUserAccountType.getAccountName() + ": " + toCurrency(currUserAccountType.getBalance());
+        return currUserTransStatus;
+    }
 
+    /**
+     *
+     * @param transactionSuccess
+     * @return log for the results from a transfer transaction
+     */
+    public String printTransactionResultTransfer(boolean transactionSuccess) {
+        String currUserTransStatus = currUser.getFullName();
 
+        if(transactionSuccess) {
+            currUserTransStatus += " transferred ";
+        }
+        else {
+            currUserTransStatus += " failed to transfer ";
+        }
+        currUserTransStatus += toCurrency(amount) + " from " + currUserAccountType.getAccountName() +" to " +
+                userToPayAccountType.getAccountName() + ".  " +currUser.getFullName() +"'s New Balance for " +
+                currUserAccountType.getAccountName() + ": " + toCurrency(currUserAccountType.getBalance()) +
+                ".  "+ userForTransaction.getFullName() +"'s New Balance for " +
+                userToPayAccountType.getAccountName() + ": " + toCurrency(userToPayAccountType.getBalance());
+        return currUserTransStatus;
+    }
+
+    /**
+     *
+     * @param amount
+     * @return number in currency format
+     */
     public String toCurrency(double amount) {
         DecimalFormat numberFormat = new DecimalFormat("#.00");
         String amountString = "$"+numberFormat.format(amount);
         return amountString;
     }
-
-
 }
