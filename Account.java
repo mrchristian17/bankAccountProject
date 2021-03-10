@@ -7,7 +7,7 @@
  * This class is the Abstract method for the customer's bank accounts
  */
 
-public abstract class Account {
+public abstract class Account implements IAccount{
     private long accountNum;
     private double balance;
     /**

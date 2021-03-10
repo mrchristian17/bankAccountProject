@@ -1,7 +1,7 @@
 public class Customer extends PersonAbstract{
-    private Account checking;
-    private Account saving;
-    private Account credit;
+    private IAccount checking;
+    private IAccount saving;
+    private IAccount credit;
 
     /**
      * Default constructor
@@ -30,11 +30,12 @@ public class Customer extends PersonAbstract{
      */
     public Customer(String firstName, String lastName, String dateOfBirth, String identificationNumber,
                     String address, String phoneNumber, long checkingAccountNum, long savingAccountNum,
-                    long creditAccountNum,double checkingBalance, double savingBalance, double creditBalance) {
+                    long creditAccountNum,double checkingBalance, double savingBalance, double creditBalance,
+                    double creditMax) {
         super(firstName, lastName, dateOfBirth, identificationNumber, address, phoneNumber);
         this.checking = new Checking(checkingAccountNum, checkingBalance);
         this.saving = new Saving(savingAccountNum, savingBalance);
-        this.credit = new Credit(creditAccountNum, creditBalance);
+        this.credit = new Credit(creditAccountNum, creditBalance, creditMax);
 
     }
 
@@ -59,8 +60,8 @@ public class Customer extends PersonAbstract{
      */
     public boolean transfer(double transferAmount, String srcAccountString, String destAccountString) {
         boolean transferSuccessful = true;
-        Account sourceAccount = findAccount(srcAccountString);
-        Account destAccount = findAccount(destAccountString);
+        IAccount sourceAccount = findAccount(srcAccountString);
+        IAccount destAccount = findAccount(destAccountString);
         if(sourceAccount == destAccount || sourceAccount.getBalance() < transferAmount)
             return false;
         boolean sourceWithdraw = sourceAccount.withdraw(transferAmount);
@@ -74,7 +75,7 @@ public class Customer extends PersonAbstract{
      * @return the specified account
      * Ex: input = "Checking" will return the corresonding Customer's checking account object
      */
-    public Account findAccount(String account) {
+    public IAccount findAccount(String account) {
         switch(account){
             case "CHECKING":
                 return getChecking();
@@ -91,7 +92,7 @@ public class Customer extends PersonAbstract{
      *
      * @return the customer's credit account
      */
-    public Account getCredit() {
+    public IAccount getCredit() {
         return credit;
     }
     /**
@@ -105,7 +106,7 @@ public class Customer extends PersonAbstract{
      *
      * @return customer's checking account
      */
-    public Account getChecking() {
+    public IAccount getChecking() {
         return checking;
     }
 
@@ -120,7 +121,7 @@ public class Customer extends PersonAbstract{
      *
      * @return customer's saving account
      */
-    public Account getSaving() {
+    public IAccount getSaving() {
         return saving;
     }
 

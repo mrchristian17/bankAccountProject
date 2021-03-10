@@ -5,34 +5,30 @@ public class TransactionManager {
     private Customer currUser;
     private Customer userForTransaction;
     private String transactionType;
-    private Account currUserAccountType;
-    private Account userToPayAccountType;
+    private IAccount currUserAccountType;
+    private IAccount userToPayAccountType;
     private double amount;
 
     /**
-     *
-     * @param currUser
+     *  @param currUser
      * @param transactionType
      * @param accountType
-     *
-     * Constructor for balance
+ *
      */
-    public TransactionManager(Customer currUser, String transactionType, Account accountType) {
+    public TransactionManager(Customer currUser, String transactionType, IAccount accountType) {
         this.currUser = currUser;
         this.transactionType = transactionType;
         this.currUserAccountType = accountType;
     }
 
     /**
-     *
-     * @param currUser
+     *  @param currUser
      * @param transactionType
      * @param accountType
      * @param amount
-     *
-     * Constructor for individual (withdraw/deposit) transactions
+*
      */
-    public TransactionManager(Customer currUser, String transactionType, Account accountType, double amount) {
+    public TransactionManager(Customer currUser, String transactionType, IAccount accountType, double amount) {
         this.currUser = currUser;
         this.transactionType = transactionType;
         this.currUserAccountType = accountType;
@@ -40,19 +36,17 @@ public class TransactionManager {
     }
 
     /**
-     *
-     * @param currUser
+     *  @param currUser
      * @param userForTransaction
      * @param transactionType
      * @param accountType
      * @param userToPayAccountType
      * @param amount
-     *
-     * Constructor for payment/transfer transactions
+*
      */
 
     public TransactionManager(Customer currUser, Customer userForTransaction, String transactionType,
-                              Account accountType, Account userToPayAccountType , double amount) {
+                              IAccount accountType, IAccount userToPayAccountType , double amount) {
         this.currUser = currUser;
         this.userForTransaction = userForTransaction;
         this.transactionType = transactionType;

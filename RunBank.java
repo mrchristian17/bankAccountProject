@@ -124,40 +124,91 @@ public class RunBank {
      */
     public static List<Customer> fileReader() {
         List<Customer> accounts = new ArrayList<Customer>();
+        String[] header = null;
         try {
-            File bankAccountsFile = new File("src/CS 3331 - Bank Users 2.csv");
+            File bankAccountsFile = new File("src/CS 3331 - Bank Users 3.csv");
             Scanner file_reader= new Scanner(bankAccountsFile);
             int count = 0;
+
             while (file_reader.hasNextLine()) {
                 String current_line = file_reader.nextLine();
-                //regex used to skip seperate data from csv file by comma, EXCEPT when the comma is surrounded by quotes
-                String[] currentUserData = current_line.trim().split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+                //regex used to skip separate data from csv file by comma, EXCEPT when the comma is surrounded by quotes
+
                 if(count == 0) {
+                    header = current_line.trim().split(",");
                     count++;
                     continue;
+                }
+                String[] currentUserData = current_line.trim().split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+                String[] currUserDataSorted = new String[header.length];
+                for(int i = 0; i < header.length; i++) {
+                    switch(header[i]) {
+                        case "First Name":
+                            currUserDataSorted[0] = currentUserData[i];
+                            break;
+                        case "Last Name":
+                            currUserDataSorted[1] = currentUserData[i];
+                            break;
+                        case "Date of Birth":
+                            currUserDataSorted[2] = currentUserData[i];
+                            break;
+                        case "Identification Number":
+                            currUserDataSorted[3] = currentUserData[i];
+                            break;
+                        case "Address":
+                            currUserDataSorted[4] = currentUserData[i];
+                            break;
+                        case "Phone Number":
+                            currUserDataSorted[5] = currentUserData[i];
+                            break;
+                        case "Checking Account Number":
+                            currUserDataSorted[6] = currentUserData[i];
+                            break;
+                        case "Savings Account Number":
+                            currUserDataSorted[7] = currentUserData[i];
+                            break;
+                        case "Credit Account Number":
+                            currUserDataSorted[8] = currentUserData[i];
+                            break;
+                        case "Checking Starting Balance":
+                            currUserDataSorted[9] = currentUserData[i];
+                            break;
+                        case "Savings Starting Balance":
+                            currUserDataSorted[10] = currentUserData[i];
+                            break;
+                        case "Credit Starting Balance":
+                            currUserDataSorted[11] = currentUserData[i];
+                            break;
+                        case "Credit Max":
+                            currUserDataSorted[12] = currentUserData[i];
+                            break;
+                        default:
+                            break;
+                    }
                 }
 //                String firstName, String lastName, String dateOfBirth, String identificationNumber,
 //                String address, String phoneNumber, long checkingAccountNum, long savingAccountNum,
 //                long creditAccountNum,double checkingBalance, double savingBalance, double creditBalance
                 accounts.add(new Customer(
-                        currentUserData[0],
-                        currentUserData[1],
+                        currUserDataSorted[0],
+                        currUserDataSorted[1],
                         //DOB
-                        currentUserData[2],
+                        currUserDataSorted[2],
                         //SSN
-                        currentUserData[3],
+                        currUserDataSorted[3],
                         //Address
-                        currentUserData[4],
+                        currUserDataSorted[4],
                         //Phone number
-                        currentUserData[5],
+                        currUserDataSorted[5],
                         //account Numbers (takes out dashes)
-                        Long.parseLong(currentUserData[6]),
-                        Long.parseLong(currentUserData[7]),
-                        Long.parseLong(currentUserData[8]),
+                        Long.parseLong(currUserDataSorted[6]),
+                        Long.parseLong(currUserDataSorted[7]),
+                        Long.parseLong(currUserDataSorted[8]),
                         //balances
-                        Double.parseDouble(currentUserData[9]),
-                        Double.parseDouble(currentUserData[10]),
-                        Double.parseDouble(currentUserData[11])));
+                        Double.parseDouble(currUserDataSorted[9]),
+                        Double.parseDouble(currUserDataSorted[10]),
+                        Double.parseDouble(currUserDataSorted[11]),
+                        Double.parseDouble(currUserDataSorted[12])));
             }
             file_reader.close();
             System.out.println("User account information has been downloaded.");
@@ -392,7 +443,7 @@ public class RunBank {
      * returns specified accountType:
      * Credit vs Saving vs Checking
      */
-    public static Account findUserAccount(String accountType, Customer currCustomer) {
+    public static IAccount findUserAccount(String accountType, Customer currCustomer) {
         switch (accountType) {
             case "CHECKING":
                 return currCustomer.getChecking();
@@ -469,7 +520,7 @@ public class RunBank {
             //Functionality for individual user
             while(resumeUserSession) {
                 String currTransaction = inputManger.checkTransactionTypeInput();
-                Account currAccountType = findUserAccount(inputManger.checkAccountTypeInput(), currUser);
+                IAccount currAccountType = findUserAccount(inputManger.checkAccountTypeInput(), currUser);
                 //If PAY is selected, then the user is asked to enter the name of a second user "to pay"
                 if(currTransaction.equalsIgnoreCase("PAY")){
                     System.out.println("Who would you like to pay?");
@@ -478,7 +529,7 @@ public class RunBank {
                         System.out.println("Cannot PAY yourself, please select TRANSFER.");
                         continue;
                     }
-                    Account userToPayAccountType = findUserAccount(inputManger.checkAccountTypeInput(), userToPay);
+                    IAccount userToPayAccountType = findUserAccount(inputManger.checkAccountTypeInput(), userToPay);
                     transactionManager = new TransactionManager(
                             currUser, userToPay, currTransaction, currAccountType,
                             userToPayAccountType, inputManger.checkMoneyInput(currTransaction));
@@ -486,7 +537,7 @@ public class RunBank {
                 //Transfer uses the same methodology as PAY, but a second account needs to be entered for the same user
                 else if(currTransaction.equalsIgnoreCase("TRANSFER")) {
                     System.out.println("Transfer selected: ");
-                    Account userToPayAccountType = findUserAccount(inputManger.checkAccountTypeInput(), currUser);
+                    IAccount userToPayAccountType = findUserAccount(inputManger.checkAccountTypeInput(), currUser);
                     transactionManager = new TransactionManager(
                             currUser, currUser, currTransaction, currAccountType,
                             userToPayAccountType, inputManger.checkMoneyInput(currTransaction));
