@@ -20,6 +20,26 @@ public class Credit extends Account {
         this.creditMax = creditMax;
     }
 
+    @Override
+    public boolean withdraw(double withdrawAmount) {
+        System.out.println("Cannot withdraw from Credit Account.");
+        return false;
+    }
+
+    @Override
+    public boolean deposit(double depositAmount) {
+        boolean depositSuccessful = true;
+        double currBalance = getBalance();
+        if(depositAmount <= 0 || currBalance + depositAmount > 0) {
+            return false;
+        }
+        double updatedBalance = currBalance + depositAmount;
+        setBalance(updatedBalance);
+        return depositSuccessful;
+
+    }
+
+
     /**
      *
      * @return name of account and account number
@@ -28,4 +48,5 @@ public class Credit extends Account {
     public String getAccountName() {
         return "Credit-" + getAccountNum();
     }
+
 }

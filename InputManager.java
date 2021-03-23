@@ -4,6 +4,25 @@ public class InputManager {
     private static Scanner in = new Scanner(System.in);
 
     public InputManager () { }
+    //DOB Address Phone #, savings account
+    public String newUser() {
+        System.out.println("Please enter the minimum information required for a new user:");
+        System.out.println("First Name?");
+        String firstName = in.nextLine();
+        System.out.println("Last Name");
+        String lastName = in.nextLine();
+        System.out.println("Phone Number?");
+        String phoneNumber = in.nextLine();
+        System.out.println("Savings Account initial deposit amount?");
+        double savingsDeposit = Double.parseDouble(in.nextLine());
+
+//        check_yes_no("Would you like to create a checking account?");
+//        check_yes_no("Would you like to create a savings account?");
+
+
+
+        return "";
+    }
 
     /**
      *
@@ -75,6 +94,17 @@ public class InputManager {
         return transactionTypeEnum.name();
     }
 
+    public boolean checkFileTransactionTypeInput(String fileInput) {
+        RunBank.FileTransaction transactionTypeEnum = null;
+        try {
+            transactionTypeEnum = RunBank.FileTransaction.valueOf(fileInput.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
+    }
+
+
     /**
      *
      * @return account type input
@@ -107,6 +137,20 @@ public class InputManager {
         }
         return accountType.name();
     }
+
+    public boolean checkAccountTypeInput(String fileInput) {
+        RunBank.AccountType accountType = null;
+        try{
+            accountType = RunBank.AccountType.valueOf(fileInput.toUpperCase());
+        }
+        catch(IllegalArgumentException e) {
+            System.out.println("This is NOT a valid account type.");
+            return false;
+        }
+        return true;
+    }
+
+
 
     /**
      *
@@ -145,7 +189,7 @@ public class InputManager {
     public String checkABInput() {
         RunBank.AB option = null;
         while(true) {
-            System.out.println("A or B?");
+            System.out.println("A,B, or C?");
             try{
                 String input = in.nextLine();
                 option = RunBank.AB.valueOf(input.toUpperCase());

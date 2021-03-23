@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author Daniel C Moreno
@@ -8,6 +11,7 @@
  */
 
 public abstract class Account implements IAccount{
+    private List<String> transactions = new ArrayList<String>();
     private long accountNum;
     private double balance;
     /**
@@ -25,6 +29,15 @@ public abstract class Account implements IAccount{
     public Account(long accountNum, double balance) {
         this.accountNum = accountNum;
         this.balance = balance;
+    }
+
+    /**
+     * @param currTransaction
+     *
+     * Adds transaction to allTransactions list
+     */
+    public void addToTransactionStatement(String currTransaction) {
+        transactions.add(currTransaction);
     }
 
     /**

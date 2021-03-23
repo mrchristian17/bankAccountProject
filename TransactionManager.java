@@ -63,25 +63,30 @@ public class TransactionManager {
         boolean transSuccessful = true;
         String logMessage = "";
 
-        if(this.transactionType.equals("BALANCE")) {
+        if(this.transactionType.equalsIgnoreCase("BALANCE") ||
+                this.transactionType.equalsIgnoreCase("INQUIRES")) {
             logMessage += printTransactionResultBalance();
         }
-        else if(this.transactionType.equals("WITHDRAW")) {
+        else if(this.transactionType.equalsIgnoreCase("WITHDRAW") ||
+                this.transactionType.equalsIgnoreCase("WITHDRAWS")) {
             transSuccessful = currUserAccountType.withdraw(amount);
-            logMessage += printTransactionResultWithdrawDeposit(transSuccessful);
+            logMessage += printTransactionResultWithdraw(transSuccessful);
         }
-        else if(this.transactionType.equals("DEPOSIT")) {
+        else if(this.transactionType.equalsIgnoreCase("DEPOSIT") ||
+                this.transactionType.equalsIgnoreCase("DEPOSITS")) {
             transSuccessful = currUserAccountType.deposit(amount);
-            logMessage += printTransactionResultWithdrawDeposit(transSuccessful);
+            logMessage += printTransactionResultDeposit(transSuccessful);
         }
-        else if(this.transactionType.equals("TRANSFER")) {
+        else if(this.transactionType.equalsIgnoreCase("TRANSFER") ||
+                this.transactionType.equalsIgnoreCase("TRANSFERS")) {
             if(currUserAccountType == userToPayAccountType)
                 transSuccessful = false;
             else
                 transSuccessful = pay();
             logMessage += printTransactionResultTransfer(transSuccessful);
         }
-        else if(this.transactionType.equals("PAY")) {
+        else if(this.transactionType.equalsIgnoreCase("PAY") ||
+                this.transactionType.equalsIgnoreCase("PAYS")) {
             transSuccessful = pay();
             logMessage += printTransactionResultPAY(transSuccessful);
         }
@@ -139,17 +144,18 @@ public class TransactionManager {
                 currUserAccountType.getAccountName() + ": " + toCurrency(currUserAccountType.getBalance());;
         userToPayTransStatus += toCurrency(amount) + " from " + currUser.getFullName() + ".  " +
                 userForTransaction.getFullName() + "'s " + "New Balance for " +
-                userToPayAccountType.getAccountName() + ": " + toCurrency(userToPayAccountType.getBalance());;
-
+                userToPayAccountType.getAccountName() + ": " + toCurrency(userToPayAccountType.getBalance());
+        currUser.addTransactions(currUserTransStatus);
+        userForTransaction.addTransactions(userToPayTransStatus);
 
         return currUserTransStatus + userToPayTransStatus;
     }
     /**
      *
      * @param transactionSuccess
-     * @return log for the results from a withdraw/deposit transaction
+     * @return log for the results from a withdraw transaction
      */
-    public String printTransactionResultWithdrawDeposit(boolean transactionSuccess) {
+    public String printTransactionResultWithdraw(boolean transactionSuccess) {
         String currUserTransStatus = currUser.getFullName();
         if(transactionSuccess) {
             currUserTransStatus += " executed a " ;
@@ -157,9 +163,30 @@ public class TransactionManager {
         else {
             currUserTransStatus += " failed to execute a ";
         }
-        currUserTransStatus += transactionType+ " from " + currUserAccountType.getAccountName() +".  " +
+        currUserTransStatus += "WITHDRAW"+ " from " + currUserAccountType.getAccountName() +".  " +
                 currUser.getFullName() + "'s Balance for " + currUserAccountType.getAccountName()+": " +
                 toCurrency(currUserAccountType.getBalance());
+        currUser.addTransactions(currUserTransStatus);
+        return currUserTransStatus;
+    }
+
+    /**
+     *
+     * @param transactionSuccess
+     * @return log for the results from a deposit transaction
+     */
+    public String printTransactionResultDeposit(boolean transactionSuccess) {
+        String currUserTransStatus = currUser.getFullName();
+        if(transactionSuccess) {
+            currUserTransStatus += " executed a " ;
+        }
+        else {
+            currUserTransStatus += " failed to execute a ";
+        }
+        currUserTransStatus += "DEPOSIT"+ " to " + currUserAccountType.getAccountName() +".  " +
+                currUser.getFullName() + "'s Balance for " + currUserAccountType.getAccountName()+": " +
+                toCurrency(currUserAccountType.getBalance());
+        currUser.addTransactions(currUserTransStatus);
         return currUserTransStatus;
     }
 
@@ -171,6 +198,7 @@ public class TransactionManager {
         String currUserTransStatus = currUser.getFullName() + " made a balance inquiry on " +
                 currUserAccountType.getAccountName() + ".  "  + currUser.getFullName() + "'s Balance for " +
                 currUserAccountType.getAccountName() + ": " + toCurrency(currUserAccountType.getBalance());
+        currUser.addTransactions(currUserTransStatus);
         return currUserTransStatus;
     }
 
@@ -193,6 +221,7 @@ public class TransactionManager {
                 currUserAccountType.getAccountName() + ": " + toCurrency(currUserAccountType.getBalance()) +
                 ".  "+ userForTransaction.getFullName() +"'s New Balance for " +
                 userToPayAccountType.getAccountName() + ": " + toCurrency(userToPayAccountType.getBalance());
+        currUser.addTransactions(currUserTransStatus);
         return currUserTransStatus;
     }
 

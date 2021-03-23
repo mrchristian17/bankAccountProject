@@ -3,15 +3,15 @@ import static org.junit.Assert.*;
 public class TransactionManagerTest {
 
     Customer customer1 = new Customer("Scar","Lion","June 18, 2017",
-            "000-00-0023", "1313 Disneyland Dr, Anaheim, CA 92802","(714) 781-4636",
+            1, "1313 Disneyland Dr, Anaheim, CA 92802","(714) 781-4636",
             1022, 2022,3022,
             344.68,3510.62,-311.93, 100000);
     Customer customer2 = new Customer("Pinocchio","Disney","July 3, 1941",
-            "000-00-0030", "1313 Disneyland Dr, Anaheim, CA 92802","(714) 781-4636",
+            2, "1313 Disneyland Dr, Anaheim, CA 92802","(714) 781-4636",
             1029, 2029,3029,
             1713.08, 3767.19,-215.12, 100000);
     Customer customer3 = new Customer("Stitch","Disney","January 20, 1954",
-            "000-00-0036","1313 Disneyland Dr, Anaheim, CA 92802","(714) 781-4636",
+            3,"1313 Disneyland Dr, Anaheim, CA 92802","(714) 781-4636",
             1035,2035,3035,
             341.33,1858.86,-35.20, 100000);
 

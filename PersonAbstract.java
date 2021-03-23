@@ -3,7 +3,7 @@ public abstract class PersonAbstract {
     private String firstName;
     private String lastName;
     private String dateOfBirth;
-    private String identificationNumber;
+    private long identificationNumber;
     private String address;
     private String phoneNumber;
 
@@ -25,7 +25,7 @@ public abstract class PersonAbstract {
      *
      * constructor for data read from csv file
      */
-    public PersonAbstract(String firstName, String lastName, String dateOfBirth, String identificationNumber,
+    public PersonAbstract(String firstName, String lastName, String dateOfBirth, long identificationNumber,
                           String address, String phoneNumber) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -34,7 +34,6 @@ public abstract class PersonAbstract {
         this.address = address;
         this.phoneNumber = phoneNumber;
     }
-
     /**
      *
      * @return person's first name
@@ -90,14 +89,14 @@ public abstract class PersonAbstract {
      *
      * @return person's identification number
      */
-    public String getIdentificationNumber() {
+    public long getIdentificationNumber() {
         return identificationNumber;
     }
 
     /**
      * {@link PersonAbstract#getIdentificationNumber()}
      */
-    public void setIdentificationNumber(String identificationNumber) {
+    public void setIdentificationNumber(long identificationNumber) {
         this.identificationNumber = identificationNumber;
     }
 

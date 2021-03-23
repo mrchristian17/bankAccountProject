@@ -1,7 +1,12 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class Customer extends PersonAbstract{
     private IAccount checking;
     private IAccount saving;
     private IAccount credit;
+    private List<String> transactions;
+    private BankStatement bankStatement;
 
     /**
      * Default constructor
@@ -12,8 +17,7 @@ public class Customer extends PersonAbstract{
     }
 
     /**
-     *
-     * @param firstName
+     *  @param firstName
      * @param lastName
      * @param dateOfBirth
      * @param identificationNumber
@@ -25,18 +29,29 @@ public class Customer extends PersonAbstract{
      * @param checkingBalance
      * @param savingBalance
      * @param creditBalance
-     *
-     * calls super class AccountAbstract that accept the above parameters
+*
      */
-    public Customer(String firstName, String lastName, String dateOfBirth, String identificationNumber,
+    public Customer(String firstName, String lastName, String dateOfBirth, long identificationNumber,
                     String address, String phoneNumber, long checkingAccountNum, long savingAccountNum,
-                    long creditAccountNum,double checkingBalance, double savingBalance, double creditBalance,
+                    long creditAccountNum, double checkingBalance, double savingBalance, double creditBalance,
                     double creditMax) {
         super(firstName, lastName, dateOfBirth, identificationNumber, address, phoneNumber);
         this.checking = new Checking(checkingAccountNum, checkingBalance);
         this.saving = new Saving(savingAccountNum, savingBalance);
         this.credit = new Credit(creditAccountNum, creditBalance, creditMax);
+        this.transactions = new ArrayList<String>();
+        this.bankStatement = new BankStatement(this);
+    }
 
+    //min info for new user
+    public Customer(String firstName, String lastName, String dateOfBirth, long identificationNumber,
+                    String address, String phoneNumber, long savingAccountNum, double savingBalance) {
+        super(firstName, lastName, dateOfBirth, identificationNumber, address, phoneNumber);
+        this.checking = null;
+        this.saving = new Saving(savingAccountNum, savingBalance);
+        this.credit = null;
+        this.transactions = new ArrayList<String>();
+        this.bankStatement = new BankStatement(this);
     }
 
     /**
@@ -44,7 +59,19 @@ public class Customer extends PersonAbstract{
      * @return name of account, account number and current account balance for all accounts
      */
     public String printAllInfo() {
-        return "(BANK MANAGER) "+getFullName() + "'s account info: " +
+
+        if(checking == null && credit == null)
+            return "(BANK MANAGER) "+getFullName() + "'s account info: " +
+                    saving.getAccountName() + ": " + saving.getBalance();
+        else if (checking==null)
+            return "(BANK MANAGER) "+getFullName() + "'s account info: " +
+                    saving.getAccountName() + ": " + saving.getBalance() + ", " +
+                    credit.getAccountName() + ": " + credit.getBalance();
+        else if(credit == null)
+            return "(BANK MANAGER) "+getFullName() + "'s account info: " +
+                    checking.getAccountName() + ": " + checking.getBalance() + ", " +
+                    saving.getAccountName() + ": " + saving.getBalance();
+        else return "(BANK MANAGER) "+getFullName() + "'s account info: " +
                 checking.getAccountName() + ": " + checking.getBalance() + ", " +
                 saving.getAccountName() + ": " + saving.getBalance() + ", " +
                 credit.getAccountName() + ": " + credit.getBalance();
@@ -86,6 +113,14 @@ public class Customer extends PersonAbstract{
             default:
                 return null;
         }
+    }
+
+    public void addTransactions(String currTransaction) {
+        transactions.add(currTransaction);
+    }
+
+    public List<String> getTransactions() {
+        return this.transactions;
     }
 
     /**
@@ -130,5 +165,9 @@ public class Customer extends PersonAbstract{
      */
     public void setSaving(Saving saving) {
         this.saving = saving;
+    }
+
+    public BankStatement getBankStatement() {
+        return this.bankStatement;
     }
 }
